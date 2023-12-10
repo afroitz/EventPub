@@ -19,6 +19,10 @@ const router = createBrowserRouter([
         path: "create",
         element: <CreateEvents />,
       },
+      {
+        path: "receive",
+        element: <CreateEvents />, // Render the same component for /receive
+      },
     ],
   },
 ]);
