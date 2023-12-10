@@ -1,8 +1,10 @@
-import { serial, text, pgSchema } from "drizzle-orm/pg-core";
+import { serial, text, pgSchema, timestamp } from "drizzle-orm/pg-core";
 
 export const eventPubSchema = pgSchema("event_pub_schema")
-export const eventPubEvents = eventPubSchema.table('events', {
+export const dbEvents = eventPubSchema.table('events', {
   id: serial('id').primaryKey(),
-  name: text('name'),
+  created: timestamp("created_at"),
+  updated: timestamp("updated_at"),
+  title: text('title'),
+  summary: text('summary'),
 });
-
