@@ -5,6 +5,8 @@ import reportWebVitals from './reportWebVitals';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Layout from './components/Layout';
 import CreateEvents from './views/CreateEvents';
+import Login from './views/Login';
+
 
 const router = createBrowserRouter([
   {
@@ -14,6 +16,10 @@ const router = createBrowserRouter([
       { 
         index: true, 
         element: <Navigate to="/create" replace /> 
+      },
+      {
+        path: "login",
+        element: <Login />,
       },
       {
         path: "create",

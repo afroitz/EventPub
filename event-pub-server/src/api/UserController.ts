@@ -18,9 +18,6 @@ class UserController {
   public register = async (req: Request, res: Response) => {
 
     try {
-
-      console.log(req.body)
-
       const { username, password } = req.body;
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -46,7 +43,7 @@ class UserController {
 
       // load user from db and check existence
       const user = await db.query.dbUsers.findFirst({
-        where: eq(dbUsers.id, username)
+        where: eq(dbUsers.username, username)
       });
 
       if (!user) {
@@ -54,17 +51,17 @@ class UserController {
       }
 
       // check password
-      if (await bcrypt.compare(password, user.password)) {
+      if (!await bcrypt.compare(password, user.password)) {
         return res.status(401).send('Invalid password');
       }
 
+      // initialize session
+      req.session.user = user
 
-
-
-
-
+      return res.status(200).send('Logged in');
     } catch (error) {
-      next(error);
+      console.log(error);
+      res.status(500).send("Error logging in");
     }
   }
 }
