@@ -12,6 +12,16 @@ class EventController {
     this.repository = new EventRepository();
   }
 
+  public listEvents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const events = await this.repository.list()
+      res.status(200).send(events);
+    } catch (e){
+      console.log(e);
+      return res.status(500).send("error listing events");
+    }
+  }
+
   public receiveEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
 

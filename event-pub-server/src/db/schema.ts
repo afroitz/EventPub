@@ -3,7 +3,7 @@ import { text, pgSchema, timestamp, serial } from "drizzle-orm/pg-core";
 export const eventPubSchema = pgSchema("event_pub_schema")
 export const dbEvents = eventPubSchema.table('events', {
   context: text('context'),
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey(), // TODO: Separate internal and external ID
   type: text('type'),
   attributedTo: text('attributed_to'),
   name: text('name'),

@@ -8,6 +8,10 @@ class EventRepository {
   async create(event: NewEvent){
     return db.insert(dbEvents).values(event)
   }
+
+  async list(){
+    return await db.query.dbEvents.findMany();
+  }
 }
 
 export default EventRepository;
