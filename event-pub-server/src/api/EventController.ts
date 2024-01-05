@@ -80,6 +80,9 @@ class EventController {
   }
 
   public createEvent =  async (req: Request, res: Response, next: NextFunction) => {
+
+    // this should have auth: only logged in users should be able to create events
+
     try {
       const {
         context: context,

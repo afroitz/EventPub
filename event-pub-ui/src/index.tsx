@@ -5,10 +5,15 @@ import reportWebVitals from './reportWebVitals';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Layout from './components/Layout';
 import CreateEvents from './views/CreateEvents';
+import ListEvents from './views/ListEvents';
 import Login from './views/Login';
 
 
 const router = createBrowserRouter([
+  {
+    path: "login",
+    element: <Login />,
+  },
   {
     path: "/",
     element: <Layout />,
@@ -18,16 +23,12 @@ const router = createBrowserRouter([
         element: <Navigate to="/create" replace /> 
       },
       {
-        path: "login",
-        element: <Login />,
-      },
-      {
         path: "create",
         element: <CreateEvents />,
       },
       {
-        path: "receive",
-        element: <CreateEvents />, // Render the same component for /receive
+        path: "list",
+        element: <ListEvents />, // Render the same component for /receive
       },
     ],
   },
