@@ -7,7 +7,7 @@ const ListEvents: React.FC = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(process.env.REACT_APP_API_URL + 'list', { credentials: 'include' });
+        const response = await fetch(process.env.REACT_APP_API_URL + '/list', { credentials: 'include' });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

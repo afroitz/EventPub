@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { redirect, useNavigate } from "react-router-dom";
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -11,7 +11,7 @@ const Login: React.FC = () => {
     event.preventDefault();
 
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL + "/login", {
+      const response = await fetch(process.env.REACT_APP_API_URL + "/register", {
         method: "POST",
         body: JSON.stringify({
           username: username,
@@ -24,20 +24,20 @@ const Login: React.FC = () => {
       });
 
       if (response.ok) {
-        console.log("Login successful");
-        return navigate("/list");
+        console.log("Registration successful");
+        return navigate("/create");
       } else {
-        throw new Error("Login failed");
+        throw new Error("Registration failed");
       }
     } catch (error) {
-      console.log("Login failed");
+      console.log("Registration failed");
     }
   };
 
   return (
     <div>
       <h1>Event Pub</h1>
-      <h2>Login</h2>
+      <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="title">Username</label>
@@ -57,10 +57,10 @@ const Login: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit">Register</button>
       </form>
     </div>
   );
 };
 
-export default Login;
+export default Register;
