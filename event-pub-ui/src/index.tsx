@@ -7,20 +7,27 @@ import Layout from './components/Layout';
 import CreateEvents from './views/CreateEvents';
 import ListEvents from './views/ListEvents';
 import Login from './views/Login';
+import Register from './views/Register';
 
 
 const router = createBrowserRouter([
-  {
-    path: "login",
-    element: <Login />,
-  },
+ 
   {
     path: "/",
     element: <Layout />,
+    
     children: [
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "register",
+        element: <Register />,
+      },
       { 
         index: true, 
-        element: <Navigate to="/create" replace /> 
+        element: <Navigate to="/login" replace /> 
       },
       {
         path: "create",

@@ -18,7 +18,8 @@ const CreateEvents: React.FC = () => {
     try {
       // const response = await fetch(process.env.REACT_APP_API_URL + '/create', {
       let api_url = process.env.REACT_APP_API_URL + '/create' || 'http://localhost:3001/create';
-      const response = await fetch(api_url, {
+      const response = await fetch(api_url,  {
+        credentials: 'include',
         method: 'POST',
         body: JSON.stringify({
           context: 'https://www.w3.org/ns/activitystreams',
