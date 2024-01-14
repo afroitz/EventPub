@@ -1,0 +1,88 @@
+CREATE
+
+curl --location 'http://localhost:3001/receive' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "context": "some context",
+    "type": "Create",
+    "id": "https://example.com/event/5",
+    "actor": "https://example.com/user/johndoe",
+    "object": {
+        "id": "https://example.com/event/5",
+        "name": "Mambo Nr.5",
+        "content": "This is some event content.",
+        "startTime": "2023-12-10T08:00:00Z",
+        "endTime": "2023-12-10T17:00:00Z",
+        "location": "Conference Center, Room 101",
+        "accepted": "",
+        "rejected": "",
+        "published": "2023-12-01T12:00:00Z",
+        "updated": "2023-12-05T15:30:00Z"
+    }
+}'
+
+UPDATE
+
+curl --location 'http://localhost:3001/receive' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "context": "some context",
+    "type": "Update",
+    "id": "https://example.com/event/5",
+    "actor": "https://example.com/user/johndoe",
+    "object": {
+        "id": "https://example.com/event/5",
+        "name": "Mambo Nr.5 - THE UPDATE!",
+        "content": "This is some event content.",
+        "startTime": "2023-12-10T08:00:00Z",
+        "endTime": "2023-12-10T17:00:00Z",
+        "location": "Conference Center, Room 101",
+        "accepted": "",
+        "rejected": "",
+        "published": "2023-12-01T12:00:00Z",
+        "updated": "2023-12-05T15:30:00Z"
+    }
+}'
+
+DELETE
+
+curl --location 'http://localhost:3001/receive' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "context": "some context",
+    "type": "Delete",
+    "id": "https://example.com/event/5",
+    "actor": "https://example.com/user/johndoe",
+    "object": {
+        "id": "https://example.com/event/5"
+    }
+}'
+
+
+ACCEPT
+
+curl --location 'http://localhost:3001/receive' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "context": "some context",
+    "type": "Accept",
+    "id": "https://example.com/event/7890",
+    "actor": "https://example.com/user/gast1",
+    "object": {
+        "id": "https://example.com/event/7890"
+    }
+}'
+
+REJECT
+
+curl --location 'http://localhost:3001/receive' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "context": "some context",
+    "type": "Reject",
+    "id": "https://example.com/event/7890",
+    "actor": "https://example.com/user/gast1",
+    "object": {
+        "id": "https://example.com/event/7890"
+    }
+}'
