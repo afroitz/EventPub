@@ -64,6 +64,26 @@ class UserController {
       res.status(500).send("Error logging in");
     }
   }
+
+  // TODO: Make this activitypub compliant
+  public get = async (req: Request, res: Response) => {
+    try {
+      const { username } = req.params;
+
+      const user = await db.query.dbUsers.findFirst({
+        where: eq(dbUsers.username, username)
+      });
+
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+
+      return res.status(200).send(user);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Error getting user");
+    }
+  }
 }
 
 export default UserController;
