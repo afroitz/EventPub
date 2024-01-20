@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
 
+const ListItem: React.FC<{ event: any }> = ({ event }) => {
+  return (
+    <li>
+      <h3>{event.data.name}</h3>
+      <p>{event.data.start_time}</p>
+    </li>
+  );
+}
+
 const ListEvents: React.FC = () => {
 
   const [events, setEvents] = useState([]);
@@ -26,9 +35,9 @@ const ListEvents: React.FC = () => {
         <h2>Events</h2>
         <ul>
           {events.map((event: any) => (
-            <li key={event.id}>
-              <h3>{event.name}</h3>
-              <p>{event.start_time}</p>
+            <li key={event.data.id}>
+              <h3>{event.data.name}</h3>
+              <p>{event.data.start_time}</p>
             </li>
           ))}
         </ul>

@@ -1,21 +1,24 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import reportWebVitals from './reportWebVitals';
-import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Layout from './components/Layout';
-import CreateEvents from './views/CreateEvents';
-import ListEvents from './views/ListEvents';
-import Login from './views/Login';
-import Register from './views/Register';
-
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
+import {
+  Navigate,
+  RouterProvider,
+  createBrowserRouter,
+} from "react-router-dom";
+import Layout from "./components/Layout";
+import CreateEvents from "./views/CreateEvents";
+import ListEvents from "./views/ListEvents";
+import Login from "./views/Login";
+import Register from "./views/Register";
+import { AuthProvider } from "./context/AuthContext";
 
 const router = createBrowserRouter([
- 
   {
     path: "/",
     element: <Layout />,
-    
+
     children: [
       {
         path: "login",
@@ -25,9 +28,9 @@ const router = createBrowserRouter([
         path: "register",
         element: <Register />,
       },
-      { 
-        index: true, 
-        element: <Navigate to="/login" replace /> 
+      {
+        index: true,
+        element: <Navigate to="/login" replace />,
       },
       {
         path: "create",
@@ -42,11 +45,13 @@ const router = createBrowserRouter([
 ]);
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );
 

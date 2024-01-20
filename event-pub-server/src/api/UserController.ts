@@ -65,6 +65,22 @@ class UserController {
     }
   }
 
+  public logout = async (req: Request, res: Response) => {
+    try {
+      req.session.destroy((error) => {
+        if (error) {
+          throw error;
+        }
+      });
+      res.clearCookie('sid');
+      res.status(200).send({message: 'Logged out'});
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({message: "Error logging out"});
+    }
+  }
+   
+
   // TODO: Make this activitypub compliant
   public get = async (req: Request, res: Response) => {
     try {
@@ -82,6 +98,14 @@ class UserController {
     } catch (error) {
       console.log(error);
       res.status(500).send("Error getting user");
+    }
+  }
+
+  public checkSession = async (req: Request, res: Response) => {
+    if (req.session.user) {
+      return res.send({loggedIn: true})
+    } else {
+      return res.send({loggedIn: false})
     }
   }
 }

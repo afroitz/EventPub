@@ -15,7 +15,16 @@ class EventController {
   public listEvents = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const events = await this.repository.list()
-      res.status(200).send(events);
+
+      // check whether user is owner of event and add this info to response
+      const responseData = events.map((event) => {
+        return {
+          isOwner: event.attributedTo == `${process.env.APP_URL}/users/${req.session.user?.username}`,
+          data: event
+        }
+      })
+
+      res.status(200).send(responseData);
     } catch (e){
       console.log(e);
       return res.status(500).send("error listing events");
