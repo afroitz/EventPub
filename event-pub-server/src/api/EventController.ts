@@ -1,90 +1,100 @@
 import { NextFunction, Request, Response } from "express";
-import EventRepository from "../db/EventRepository";  
+import EventRepository from "../db/EventRepository";
 // import { uuid } from "drizzle-orm/pg-core";
-import {v4 as uuidv4} from 'uuid';
-
+import { v4 as uuidv4 } from "uuid";
+import EventService from "../services/EventService";
+import { dbEvents } from "../db/schema";
+import { db } from "../db/db";
 
 class EventController {
-
-  repository: EventRepository
+  repository: EventRepository;
+  eventService: EventService;
 
   constructor() {
     this.repository = new EventRepository();
+    this.eventService = new EventService();
   }
 
-  public listEvents = async (req: Request, res: Response, next: NextFunction) => {
+  public listEvents = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const events = await this.repository.list()
+      const events = await this.repository.list();
 
       // check whether user is owner of event and add this info to response
       const responseData = events.map((event) => {
         return {
-          isOwner: event.attributedTo == `${process.env.APP_URL}/users/${req.session.user?.username}`,
-          data: event
-        }
-      })
+          isOwner:
+            event.attributedTo ==
+            `${process.env.APP_URL}/users/${req.session.user?.username}`,
+          data: event,
+        };
+      });
 
       res.status(200).send(responseData);
-    } catch (e){
+    } catch (e) {
       console.log(e);
       return res.status(500).send("error listing events");
     }
-  }
+  };
 
-  public receiveEvent = async (req: Request, res: Response, next: NextFunction) => {
+  public receiveEvent = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      
-      console.log('receiving event'.toUpperCase());
+      console.log("receiving event".toUpperCase());
 
-      const {
-        context: context,
-        type: type,
-        actor: attributedTo,        
-      } = req.body;
+      const { context: context, type: type, actor: attributedTo } = req.body;
 
-      console.log('received event:'.toUpperCase());
-      console.log('context:', context);
-      console.log('type:', type);
-      console.log('attributedTo:', attributedTo);
+      console.log("received event:".toUpperCase());
+      console.log("context:", context);
+      console.log("type:", type);
+      console.log("attributedTo:", attributedTo);
 
-      if (type == 'Create') {
-        console.log('received create event');
+      if (type == "Create") {
+        console.log("received create event");
         await this.handleCreate(req, res, next);
       }
-      if (type == 'Update') {
-        console.log('received update event');
+      if (type == "Update") {
+        console.log("received update event");
         await this.handleUpdate(req, res, next);
       }
-      if (type == 'Accept') {
-        console.log('received accept event');
+      if (type == "Accept") {
+        console.log("received accept event");
         await this.handleAccept(req, res, next);
-      }      
-      if (type == 'Reject') {
-        console.log('received reject event');
+      }
+      if (type == "Reject") {
+        console.log("received reject event");
         await this.handleReject(req, res, next);
-      } 
-      if (type == 'Undo') {
-        console.log('received delete event');
+      }
+      if (type == "Undo") {
+        console.log("received delete event");
         //await this.handleUndo(req, res, next);
-      }                      
-      if (type == 'Delete') {
-        console.log('received delete event');
+      }
+      if (type == "Delete") {
+        console.log("received delete event");
         await this.handleDelete(req, res, next);
-      }                     
-
-    }catch(e){
-      console.log('error receiving event');
+      }
+    } catch (e) {
+      console.log("error receiving event");
       console.log(e);
     }
-  }
+  };
 
-  public handleCreate = async (req: Request, res: Response, next: NextFunction) => {
+  public handleCreate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      
-      console.log('processing create event'.toUpperCase());
+      console.log("processing create event".toUpperCase());
 
       const {
-        actor: attributedTo,        
+        actor: attributedTo,
         object: {
           id: id,
           name: name,
@@ -99,21 +109,22 @@ class EventController {
         },
       } = req.body;
 
-      console.log('id:', id);
-      console.log('attributedTo:', attributedTo);
-      console.log('name:', name);
-      console.log('content:', content);
-      console.log('startTime:', startTime);
-      console.log('endTime:', endTime);
-      console.log('location:', location);
-      console.log('accepted:', accepted);
-      console.log('rejected:', rejected);
-      console.log('published:', published);
-      console.log('updated:', updated);
+      console.log("id:", id);
+      console.log("attributedTo:", attributedTo);
+      console.log("name:", name);
+      console.log("content:", content);
+      console.log("startTime:", startTime);
+      console.log("endTime:", endTime);
+      console.log("location:", location);
+      console.log("accepted:", accepted);
+      console.log("rejected:", rejected);
+      console.log("published:", published);
+      console.log("updated:", updated);
 
-      try{
+      try {
         await this.repository.create({
-          id: id,
+          id: uuidv4(),
+          federationId: id,
           attributedTo: attributedTo,
           name: name,
           content: content,
@@ -125,29 +136,30 @@ class EventController {
           published: published,
           updated: updated,
         });
-        console.log('event saved in db');
-      } catch(e) {
-        console.log('error saving event in db');
+        console.log("event saved in db");
+      } catch (e) {
+        console.log("error saving event in db");
         console.log(e);
       }
-      
+
       //console.log('req:', req);
       res.status(200).send("Event created");
-
     } catch (e) {
       console.error(e);
       res.status(500).send("Error creating event");
     }
-  }
+  };
 
-  public handleUpdate = async (req: Request, res: Response, next: NextFunction) => {
-    
+  public handleUpdate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      
-      console.log('processing update event'.toUpperCase());
+      console.log("processing update event".toUpperCase());
 
       const {
-        actor: attributedTo,        
+        actor: attributedTo,
         object: {
           id: id,
           name: name,
@@ -162,21 +174,22 @@ class EventController {
         },
       } = req.body;
 
-      console.log('id:', id);
-      console.log('attributedTo:', attributedTo);
-      console.log('name:', name);
-      console.log('content:', content);
-      console.log('startTime:', startTime);
-      console.log('endTime:', endTime);
-      console.log('location:', location);
-      console.log('accepted:', accepted);
-      console.log('rejected:', rejected);
-      console.log('published:', published);
-      console.log('updated:', updated);
+      console.log("id:", id);
+      console.log("attributedTo:", attributedTo);
+      console.log("name:", name);
+      console.log("content:", content);
+      console.log("startTime:", startTime);
+      console.log("endTime:", endTime);
+      console.log("location:", location);
+      console.log("accepted:", accepted);
+      console.log("rejected:", rejected);
+      console.log("published:", published);
+      console.log("updated:", updated);
 
-      try{
+      try {
         await this.repository.update({
-          id: id,
+          id: uuidv4(),
+          federationId: id,
           attributedTo: attributedTo,
           name: name,
           content: content,
@@ -188,259 +201,227 @@ class EventController {
           published: published,
           updated: updated,
         });
-        console.log('event updated in db');
-      } catch(e) {
-        console.log('error updating event in db');
+        console.log("event updated in db");
+      } catch (e) {
+        console.log("error updating event in db");
         console.log(e);
       }
-      
-      res.status(200).send("Event updated");
 
+      res.status(200).send("Event updated");
     } catch (e) {
       console.error(e);
       res.status(500).send("Error updating event");
     }
-  
-  }
+  };
 
-  public handleDelete = async (req: Request, res: Response, next: NextFunction) => {
-
+  public handleDelete = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      
-      console.log('processing delete event'.toUpperCase());
+      console.log("processing delete event".toUpperCase());
 
-      const {    
-        object: {
-          id: id,
-          name: name,
-        },
+      const {
+        object: { id: id, name: name },
       } = req.body;
 
-      try{
-        await this.repository.delete({
-          id: id,
-        });
-      } catch(e) {
-        console.log('error deleting event ${id}');
+      try {
+        await this.repository.delete(id);
+      } catch (e) {
+        console.log("error deleting event ${id}");
         console.log(e);
       }
-      
-      res.status(200).send("Event deleted");
 
+      res.status(200).send("Event deleted");
     } catch (e) {
       console.error(e);
       res.status(500).send("Error deleting event");
     }
-  
-  }  
+  };
 
-  public handleAccept = async (req: Request, res: Response, next: NextFunction) => {
-
+  public handleAccept = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      
-      console.log('processing accept event'.toUpperCase());
+      console.log("processing accept event".toUpperCase());
 
-      const {    
-        actor: actor,
-        object: {
-          id: id,
-        },
-      } = req.body;
-
-      try{
-        // get event from db
-        const accepted_event = await this.repository.getEvent({id: id});
-
-        // add actor to accepted 
-        console.log('Adding actor to accepted');
-        accepted_event[0].accepted = accepted_event[0].accepted + ', ' + actor;        
-
-        // update event in db
-        await this.repository.update({
-          id: id,
-          attributedTo: accepted_event[0].attributedTo,
-          name: accepted_event[0].name,
-          content: accepted_event[0].content,
-          startTime: accepted_event[0].startTime,
-          endTime: accepted_event[0].endTime,
-          location: accepted_event[0].location,
-          accepted: accepted_event[0].accepted,
-          rejected: accepted_event[0].rejected,
-          published: accepted_event[0].published,
-          updated: accepted_event[0].updated,
-        });
-
-      } catch(e) {
-        console.log('error updating event');
-        console.log(e);
-      }
-      
-      res.status(200).send("Accepted invitation added");
-
-      } catch (e) {
-        console.error(e);
-        res.status(500).send("Error accepting invite");
-      } 
-  }  
-
-  public handleReject = async (req: Request, res: Response, next: NextFunction) => {
-
-    try {
-      
-      console.log('processing reject event'.toUpperCase());
-
-      const {    
-        actor: actor,
-        object: {
-          id: id,
-        },
-      } = req.body;
-
-      try{
-        // get event from db
-        const accepted_event = await this.repository.getEvent({id: id});
-
-        // add actor to accepted 
-        console.log('Adding actor to rejected');
-        accepted_event[0].rejected = accepted_event[0].rejected + ', ' + actor;  
-
-        console.log('updated event:', accepted_event);        
-
-        // update event in db
-        await this.repository.update({
-          id: id,
-          attributedTo: accepted_event[0].attributedTo,
-          name: accepted_event[0].name,
-          content: accepted_event[0].content,
-          startTime: accepted_event[0].startTime,
-          endTime: accepted_event[0].endTime,
-          location: accepted_event[0].location,
-          accepted: accepted_event[0].accepted,
-          rejected: accepted_event[0].rejected,
-          published: accepted_event[0].published,
-          updated: accepted_event[0].updated,
-        });
-
-      } catch(e) {
-        console.log('error updating event');
-        console.log(e);
-      }
-      
-      res.status(200).send("Rejected invitation added");
-
-      } catch (e) {
-        console.error(e);
-        res.status(500).send("Error rejecting invite");
-      }
-        
-  }    
-
-  public createEvent =  async (req: Request, res: Response, next: NextFunction) => {
-
-    // this should have auth: only logged in users should be able to create events
-
-    try {
       const {
-        context: context,
-        id: id = uuidv4(),
-        type: type,
-        attributedTo: attributedTo,
+        actor: actor,
+        object: { id: id },
+      } = req.body;
+
+      try {
+        // get event from db
+        const accepted_event = await this.repository.getEvent(id);
+
+        if(!accepted_event){
+          throw new Error("Event not found");
+        }
+
+        // add actor to accepted
+        console.log("Adding actor to accepted");
+        accepted_event.accepted = accepted_event.accepted + ", " + actor;
+
+        // update event in db
+        await this.repository.update({
+          id: uuidv4(),
+          federationId: id,
+          attributedTo: accepted_event.attributedTo,
+          name: accepted_event.name,
+          content: accepted_event.content,
+          startTime: accepted_event.startTime,
+          endTime: accepted_event.endTime,
+          location: accepted_event.location,
+          accepted: accepted_event.accepted,
+          rejected: accepted_event.rejected,
+          published: accepted_event.published,
+          updated: accepted_event.updated,
+        });
+      } catch (e) {
+        console.log("error updating event");
+        console.log(e);
+      }
+
+      res.status(200).send("Accepted invitation added");
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Error accepting invite");
+    }
+  };
+
+  public handleReject = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      console.log("processing reject event".toUpperCase());
+
+      const {
+        actor: actor,
+        object: { id: id },
+      } = req.body;
+
+      try {
+        // get event from db
+        const accepted_event = await this.repository.getEvent(id);
+
+        if(!accepted_event){
+          throw new Error("Event not found");
+        }
+
+        // add actor to acceptedx
+        console.log("Adding actor to rejected");
+        accepted_event.rejected = accepted_event.rejected + ", " + actor;
+
+        console.log("updated event:", accepted_event);
+
+        // update event in db
+        await this.repository.update({
+          id: uuidv4(),
+          federationId: id,
+          attributedTo: accepted_event.attributedTo,
+          name: accepted_event.name,
+          content: accepted_event.content,
+          startTime: accepted_event.startTime,
+          endTime: accepted_event.endTime,
+          location: accepted_event.location,
+          accepted: accepted_event.accepted,
+          rejected: accepted_event.rejected,
+          published: accepted_event.published,
+          updated: accepted_event.updated,
+        });
+      } catch (e) {
+        console.log("error updating event");
+        console.log(e);
+      }
+
+      res.status(200).send("Rejected invitation added");
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Error rejecting invite");
+    }
+  };
+
+  public createEvent = async (req: Request, res: Response) => {
+    try {
+      // parse event data from request body
+      const {
         name: name,
         content: content,
         startTime: startTime,
         endTime: endTime,
         location: location,
-        accepted: accepted,
-        rejected: rejected,
-        published: published,
-        updated: updated,
-        
       } = req.body;
 
-      console.log('creating event'.toUpperCase());
-      console.log('context', context);
-      console.log('id', id);
-      console.log('type', type);
-      console.log('attributedTo', attributedTo);
-      console.log('name', name);
-      console.log('content', content);
-      console.log('startTime', startTime);
-      console.log('endTime', endTime);
-      console.log('location', location);
-      console.log('accepted', accepted);
-      console.log('rejected', rejected);
-      console.log('published', published);
-      console.log('updated', updated);
+      // create event in db
+      const newId = uuidv4();
 
-      try{
+      const newEvent = (
         await this.repository.create({
-          context: context,
-          id: id,
-          type: type,
-          attributedTo: attributedTo,
+          id: newId,
+          context: "our cool context",
+          type: "Event",
+          attributedTo: `${process.env.APP_URL}/users/${req.session.user?.username}`,
+          federationId: `${process.env.APP_URL}/events/${newId}`,
           name: name,
           content: content,
           startTime: startTime,
           endTime: endTime,
           location: location,
-          accepted: 'accepted',
-          rejected: 'rejected',
-          published: published,
-          updated: updated,
-        });
-        console.log('event saved in db');
-      } catch(e) {
-        console.log('error saving event in db');
-        console.log(e);
-      }
+          accepted: "accepted",
+          rejected: "rejected",
+        })
+      )[0];
 
-      try{
-        console.log('sending event to public'.toUpperCase());
-        let createActivity = 
-          {
-            "@context": "https://www.w3.org/ns/activitystreams",
-            "type": "Create",
-            "id": attributedTo + "/" +id,
-            "to":"test",
-            "actor": attributedTo,
-            "object": {
-              "type": type,
-              "id": attributedTo + "/" + id,
-              "attributedTo": attributedTo,
-              "name": name,
-              "content": content,
-              "startTime": startTime,
-              "endTime": endTime,
-              "location": location,
-              "accepted": accepted,
-              "rejected": rejected,
-              "published": published,
-              "updated": updated,
-            }
-        }
+      console.log("event saved in db");
+      console.log(JSON.stringify(newEvent, null, 2));
 
-        // Wrap & Send the event to the public url
-        let publicUrl = 'https://eo2kj3uk6ul5ycq.m.pipedream.net'; //replace with actual public url
+      // distribute event
+      //const createActivity = this.eventService.getApCreateEvent(newEvent);
+      const createActivity = this.eventService.getApCreateEvent(newEvent);
 
-        await fetch(publicUrl, {
-          method: 'POST',
-          body: JSON.stringify(createActivity),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+      console.log(JSON.stringify(createActivity, null, 2));
 
-        console.log('event sent to public');
+      console.log("sending event to public".toUpperCase());
 
-      }catch(e){
-        console.log('error sending event to public');
-        console.log(e);
-      }
+      // Wrap & Send the event to the public url
+      let publicUrl = "https://eo2kj3uk6ul5ycq.m.pipedream.net"; //replace with actual public url
+
+      await fetch(publicUrl, {
+        method: "POST",
+        body: JSON.stringify(createActivity),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("event sent to public");
+
       res.status(200).send("event created");
     } catch (e) {
       console.log(e);
       res.status(500).send("error creating event");
-    } 
+    }
+  };
+
+  public get = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const event = await this.repository.getEvent(id);
+
+      if (!event) {
+        return res.status(404).send('Event not found');
+      }
+
+      return res.status(200).send(event);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Error getting user");
+    }
   }
 }
 

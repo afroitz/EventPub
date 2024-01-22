@@ -1,9 +1,11 @@
-import { text, pgSchema, timestamp, serial } from "drizzle-orm/pg-core";
+import { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import { text, pgSchema, timestamp, serial, uuid } from "drizzle-orm/pg-core";
 
 export const eventPubSchema = pgSchema("event_pub_schema")
 export const dbEvents = eventPubSchema.table('events', {
   context: text('context'),
-  id: text('id').primaryKey(), // TODO: Separate internal and external ID
+  id: uuid('id').primaryKey(),
+  federationId: text('federation_id').notNull(), // TODO: Separate internal and external ID
   type: text('type'),
   attributedTo: text('attributed_to'),
   name: text('name'),
@@ -16,6 +18,9 @@ export const dbEvents = eventPubSchema.table('events', {
   published: text('published'),
   updated: text('updated'),
 });
+
+export type NewEvent = InferInsertModel<typeof dbEvents>;
+export type DbEvent = InferSelectModel<typeof dbEvents>;
 
 export const dbUsers = eventPubSchema.table('users', {
   id: serial('id').primaryKey(),
