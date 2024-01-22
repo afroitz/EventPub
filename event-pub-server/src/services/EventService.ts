@@ -35,6 +35,14 @@ class EventService {
       object: apEvent,
     };
   }
+
+  /**
+   * Returns the event's federation ID
+   * @param eventId
+   */
+  public getEventFederationId(eventId: string){
+    return `${process.env.APP_URL}/events/${eventId}`
+  }
 }
 
 export default EventService;

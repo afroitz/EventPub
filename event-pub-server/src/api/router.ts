@@ -20,7 +20,7 @@ const userController = new UserController();
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.post('/logout', isLoggedIn, userController.logout);
-router.get('/user/:username', userController.get);
+router.get('/users/:username', userController.get);
 router.get('/check-session', userController.checkSession);
 
 export default router;

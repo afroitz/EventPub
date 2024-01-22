@@ -30,6 +30,8 @@ export const dbUsers = eventPubSchema.table('users', {
   password: text('password').notNull(),
 });
 
+export type DbUser = InferSelectModel<typeof dbUsers>;
+
 export const dbServers = eventPubSchema.table('servers', {
   id: text('id').primaryKey(),
   created: timestamp('created'),

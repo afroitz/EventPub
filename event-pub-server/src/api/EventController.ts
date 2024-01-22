@@ -3,16 +3,17 @@ import EventRepository from "../db/EventRepository";
 // import { uuid } from "drizzle-orm/pg-core";
 import { v4 as uuidv4 } from "uuid";
 import EventService from "../services/EventService";
-import { dbEvents } from "../db/schema";
-import { db } from "../db/db";
+import UserService from "../services/UserService";
 
 class EventController {
   repository: EventRepository;
   eventService: EventService;
+  userService: UserService;
 
   constructor() {
     this.repository = new EventRepository();
     this.eventService = new EventService();
+    this.userService = new UserService();
   }
 
   public listEvents = async (
@@ -365,7 +366,7 @@ class EventController {
           id: newId,
           context: "our cool context",
           type: "Event",
-          attributedTo: `${process.env.APP_URL}/users/${req.session.user?.username}`,
+          attributedTo: this.userService.getUserFederationId(req.session.user?.username),
           federationId: `${process.env.APP_URL}/events/${newId}`,
           name: name,
           content: content,
@@ -412,12 +413,13 @@ class EventController {
     try {
       const { id } = req.params;
       const event = await this.repository.getEvent(id);
-
+      
       if (!event) {
         return res.status(404).send('Event not found');
       }
-
-      return res.status(200).send(event);
+      
+      const apEvent = this.eventService.getApEvent(event);
+      return res.status(200).send(apEvent);
     } catch (error) {
       console.log(error);
       res.status(500).send("Error getting user");

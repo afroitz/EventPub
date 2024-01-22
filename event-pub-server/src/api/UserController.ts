@@ -4,15 +4,16 @@ import { eq } from "drizzle-orm";
 import { dbUsers } from "../db/schema";
 import bcrypt from "bcrypt";
 import UserRepository from "../db/UserRepository";
-
-type NewUser = typeof dbUsers.$inferInsert;
+import UserService from "../services/UserService";
 
 class UserController {
 
   repository: UserRepository
+  userService: UserService
 
   constructor() {
     this.repository = new UserRepository();
+    this.userService = new UserService();
   }
 
   public register = async (req: Request, res: Response) => {
@@ -94,7 +95,9 @@ class UserController {
         return res.status(404).send('User not found');
       }
 
-      return res.status(200).send(user);
+      const apUser = this.userService.getApUser(user);
+
+      return res.status(200).send(apUser);
     } catch (error) {
       console.log(error);
       res.status(500).send("Error getting user");
