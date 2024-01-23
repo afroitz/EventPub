@@ -33,6 +33,9 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
                     setLoggedIn(true);
                 }
                 setLoading(false);
+            }).catch(() => {
+                setLoading(false);
+                console.log("Backend error")
             });
     }, []);
 
@@ -55,6 +58,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     const logOut = async () => {
         const response = await fetch(process.env.REACT_APP_API_URL + "/logout", {
             method: 'POST',
+            credentials: 'include',
         });
         if (response.ok) {
             setLoggedIn(false);

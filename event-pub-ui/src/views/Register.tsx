@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -25,7 +25,7 @@ const Register: React.FC = () => {
 
       if (response.ok) {
         console.log("Registration successful");
-        return navigate("/create");
+        return navigate("/login");
       } else {
         throw new Error("Registration failed");
       }
