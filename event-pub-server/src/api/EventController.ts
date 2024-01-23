@@ -26,13 +26,18 @@ class EventController {
     try {
       const events = await this.repository.list();
 
+      const currUserId = `${process.env.APP_URL}/users/${req.session.user?.username}`;
+
       // check whether user is owner of event and add this info to response
       const responseData = events.map((event) => {
+
+        const currUserAccepted = event.accepted.includes(currUserId);
+        const currUserRejected = event.rejected.includes(currUserId);
+
         return {
-          isOwner:
-            event.attributedTo ==
-            `${process.env.APP_URL}/users/${req.session.user?.username}`,
+          isOwner: event.attributedTo === currUserId,
           data: event,
+          rsvpStatus: currUserAccepted ? "accepted" : currUserRejected ? "rejected" : "none", // This would fail if user is both accepted and rejected. That should never happen.
         };
       });
 
@@ -260,13 +265,13 @@ class EventController {
         // get event from db
         const accepted_event = await this.repository.getEvent(id);
 
-        if(!accepted_event){
+        if (!accepted_event) {
           throw new Error("Event not found");
         }
 
         // add actor to accepted
         console.log("Adding actor to accepted");
-        accepted_event.accepted = accepted_event.accepted + ", " + actor;
+        accepted_event.accepted = [...accepted_event.accepted, actor];
 
         // update event in db
         await this.repository.update({
@@ -312,13 +317,13 @@ class EventController {
         // get event from db
         const accepted_event = await this.repository.getEvent(id);
 
-        if(!accepted_event){
+        if (!accepted_event) {
           throw new Error("Event not found");
         }
 
         // add actor to acceptedx
         console.log("Adding actor to rejected");
-        accepted_event.rejected = accepted_event.rejected + ", " + actor;
+        accepted_event.rejected = [...accepted_event.rejected, actor];
 
         console.log("updated event:", accepted_event);
 
@@ -368,28 +373,30 @@ class EventController {
           id: newId,
           context: "our cool context",
           type: "Event",
-          attributedTo: this.userService.getUserFederationId(req.session.user?.username),
+          attributedTo: this.userService.getUserFederationId(
+            req.session.user?.username
+          ),
           federationId: `${process.env.APP_URL}/events/${newId}`,
           name: name,
           content: content,
           startTime: startTime,
           endTime: endTime,
           location: location,
-          accepted: "accepted",
-          rejected: "rejected",
+          accepted: [],
+          rejected: [],
         })
       )[0];
 
       // make create activity and save to activity queue
       const createActivity = this.eventService.getApCreateEvent(newEvent);
-      const serverIds = (await db.query.dbServers.findMany()).map(s => s.id);
+      const serverIds = (await db.query.dbServers.findMany()).map((s) => s.id);
 
       await db.insert(dbActivityQueue).values({
         activity: createActivity,
         publishTo: JSON.stringify(serverIds),
       });
 
-      console.log("CREATE ACTIVITY:")
+      console.log("CREATE ACTIVITY:");
       console.log(JSON.stringify(createActivity, null, 2));
       res.status(200).send("event created");
     } catch (e) {
@@ -402,18 +409,18 @@ class EventController {
     try {
       const { id } = req.params;
       const event = await this.repository.getEvent(id);
-      
+
       if (!event) {
-        return res.status(404).send('Event not found');
+        return res.status(404).send("Event not found");
       }
-      
+
       const apEvent = this.eventService.getApEvent(event);
       return res.status(200).send(apEvent);
     } catch (error) {
       console.log(error);
       res.status(500).send("Error getting user");
     }
-  }
+  };
 }
 
 export default EventController;

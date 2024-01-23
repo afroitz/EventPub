@@ -17,10 +17,9 @@ const Layout: React.FC = () => {
   };
 
   return (
-    <div>
-      <div>
+    <div className="wrapper">
+      <div className="header">
         <h1>Event Pub</h1>
-        {loggedIn && <p>Logged in!</p>}
         <nav>
           <ul>
             {loggedIn ? (

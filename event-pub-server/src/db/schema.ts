@@ -13,8 +13,8 @@ export const dbEvents = eventPubSchema.table('events', {
   startTime: text('start_time'),
   endTime: text('end_time'),
   location: text('location'),
-  accepted: text('accepted'),
-  rejected: text('rejected'),
+  accepted: jsonb('accepted').$type<string[]>().notNull(),
+  rejected: jsonb('rejected').$type<string[]>().notNull(),
   published: timestamp('created').defaultNow(),
   updated: timestamp('updated').defaultNow(),
 });
