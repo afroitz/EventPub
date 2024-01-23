@@ -30,9 +30,9 @@ async function publishActivities() {
 
     for (const server of servers) {
       if (publishTo.includes(server.id)) {
-        VERBOSE && console.log(`\tPublishing activity to ${server.id}`);
+        VERBOSE && console.log(`\tPublishing activity to ${server.inbox}`);
         try {
-          await fetch(server.inbox, {
+          const res = await fetch(server.inbox, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -40,11 +40,15 @@ async function publishActivities() {
             body: JSON.stringify(activityObj),
           });
 
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+
           // remove server from publishTo list
           publishTo = publishTo.filter((id: string) => id !== server.id);
-          VERBOSE && console.log(`\t\tPublishing to ${server.id} complete`);
+          VERBOSE && console.log(`\t\tPublishing to ${server.inbox} complete`);
         } catch (e) {
-          VERBOSE && console.log(`\t\tPublishing to ${server.id} failed: ${e}`);
+          VERBOSE && console.log(`\t\tPublishing to ${server.inbox} failed: ${e}`);
         }
       }
     }
