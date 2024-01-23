@@ -4,6 +4,8 @@ import EventRepository from "../db/EventRepository";
 import { v4 as uuidv4 } from "uuid";
 import EventService from "../services/EventService";
 import UserService from "../services/UserService";
+import { db } from "../db/db";
+import { dbActivityQueue } from "../db/schema";
 
 class EventController {
   repository: EventRepository;
@@ -378,30 +380,17 @@ class EventController {
         })
       )[0];
 
-      console.log("event saved in db");
-      console.log(JSON.stringify(newEvent, null, 2));
-
-      // distribute event
-      //const createActivity = this.eventService.getApCreateEvent(newEvent);
+      // make create activity and save to activity queue
       const createActivity = this.eventService.getApCreateEvent(newEvent);
+      const serverIds = (await db.query.dbServers.findMany()).map(s => s.id);
 
-      console.log(JSON.stringify(createActivity, null, 2));
-
-      console.log("sending event to public".toUpperCase());
-
-      // Wrap & Send the event to the public url
-      let publicUrl = "https://eo2kj3uk6ul5ycq.m.pipedream.net"; //replace with actual public url
-
-      await fetch(publicUrl, {
-        method: "POST",
-        body: JSON.stringify(createActivity),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      await db.insert(dbActivityQueue).values({
+        activity: createActivity,
+        publishTo: JSON.stringify(serverIds),
       });
 
-      console.log("event sent to public");
-
+      console.log("CREATE ACTIVITY:")
+      console.log(JSON.stringify(createActivity, null, 2));
       res.status(200).send("event created");
     } catch (e) {
       console.log(e);

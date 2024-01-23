@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { text, pgSchema, timestamp, serial, uuid } from "drizzle-orm/pg-core";
+import { text, pgSchema, timestamp, serial, uuid, jsonb } from "drizzle-orm/pg-core";
 
 export const eventPubSchema = pgSchema("event_pub_schema")
 export const dbEvents = eventPubSchema.table('events', {
@@ -15,8 +15,8 @@ export const dbEvents = eventPubSchema.table('events', {
   location: text('location'),
   accepted: text('accepted'),
   rejected: text('rejected'),
-  published: text('published'),
-  updated: text('updated'),
+  published: timestamp('created').defaultNow(),
+  updated: timestamp('updated').defaultNow(),
 });
 
 export type NewEvent = InferInsertModel<typeof dbEvents>;
@@ -31,10 +31,21 @@ export const dbUsers = eventPubSchema.table('users', {
 });
 
 export type DbUser = InferSelectModel<typeof dbUsers>;
+export type NewUser = InferInsertModel<typeof dbUsers>;
 
 export const dbServers = eventPubSchema.table('servers', {
-  id: text('id').primaryKey(),
-  created: timestamp('created'),
-  updated: timestamp('updated'),
-  inbox: text('inbox'),
+  id: uuid('id').primaryKey(),
+  created: timestamp('created').defaultNow(),
+  updated: timestamp('updated').defaultNow(),
+  inbox: text('inbox').notNull(),
+});
+
+export type NewServer = InferInsertModel<typeof dbServers>;
+
+export const dbActivityQueue = eventPubSchema.table('activity_queue', {
+  id: serial('id').primaryKey(),
+  created: timestamp('created').defaultNow(),
+  updated: timestamp('updated').defaultNow(),
+  activity: jsonb('activity').notNull(),
+  publishTo: text('publish_to').notNull(), /* Stringified list of ids of servers to publish to. Should be refactored to many-to-many table */ 
 });
