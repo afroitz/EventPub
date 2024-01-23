@@ -5,7 +5,8 @@ import { v4 as uuidv4 } from "uuid";
 import EventService from "../services/EventService";
 import UserService from "../services/UserService";
 import { db } from "../db/db";
-import { dbActivityQueue } from "../db/schema";
+import { dbActivityQueue, dbEvents } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 class EventController {
   repository: EventRepository;
@@ -30,14 +31,17 @@ class EventController {
 
       // check whether user is owner of event and add this info to response
       const responseData = events.map((event) => {
-
         const currUserAccepted = event.accepted.includes(currUserId);
         const currUserRejected = event.rejected.includes(currUserId);
 
         return {
           isOwner: event.attributedTo === currUserId,
           data: event,
-          rsvpStatus: currUserAccepted ? "accepted" : currUserRejected ? "rejected" : "none", // This would fail if user is both accepted and rejected. That should never happen.
+          rsvpStatus: currUserAccepted
+            ? "accepted"
+            : currUserRejected
+            ? "rejected"
+            : "none", // This would fail if user is both accepted and rejected. That should never happen.
         };
       });
 
@@ -402,6 +406,47 @@ class EventController {
     } catch (e) {
       console.log(e);
       res.status(500).send("error creating event");
+    }
+  };
+
+  public rsvp = async (req: Request, res: Response) => {
+    try {
+      const { id, action } = req.body;
+
+      // get event from db
+      const event = await this.repository.getEvent(id);
+
+      if (!event) {
+        return res.status(404).send("Event not found");
+      }
+
+      // get user federation id
+      const currUserId = this.userService.getUserFederationId(
+        req.session.user?.username
+      );
+
+      // add user to accepted or rejected
+      if (action === "accept") {
+        event.accepted = [...event.accepted, currUserId];
+      } else if (action === "reject") {
+        event.rejected = [...event.rejected, currUserId];
+      } else if (action === "undo-accept") {
+        event.accepted = event.accepted.filter((u) => u !== currUserId);
+      } else if (action === "undo-reject") {
+        event.rejected = event.rejected.filter((u) => u !== currUserId);
+      }
+
+      await db
+        .update(dbEvents)
+        .set({
+          accepted: event.accepted,
+          rejected: event.rejected,
+        })
+        .where(eq(dbEvents.id, event.id));
+        
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Error updating event");
     }
   };
 

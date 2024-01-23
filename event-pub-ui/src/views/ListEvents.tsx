@@ -14,20 +14,27 @@ type Event = {
 };
 
 const EventsListItem: React.FC<{ event: Event }> = ({ event }) => {
-  const accept = async () => {
-    console.log("accepting event");
-  };
-
-  const reject = async () => {
-    console.log("rejecting event");
-  };
-
-  const undoAccept = async () => {
-    console.log("undoing accept event");
-  };
-
-  const undoReject = async () => {
-    console.log("undoing reject event");
+  const handleRsvp = async (action: string, eventId: string) => {
+    try {
+      const response = await fetch(process.env.REACT_APP_API_URL + "/rsvp/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: action, id: eventId }),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      window.location.reload();
+    } catch (error) {
+      console.error("RSVP failed:", error);
+    }
   };
 
   return (
@@ -69,7 +76,7 @@ const EventsListItem: React.FC<{ event: Event }> = ({ event }) => {
           <button
             className="list-event-button"
             onClick={() => {
-              undoAccept();
+              handleRsvp("undo-accept", event.data.id);
             }}
           >
             Undo Accept
@@ -79,7 +86,7 @@ const EventsListItem: React.FC<{ event: Event }> = ({ event }) => {
           <button
             className="list-event-button"
             onClick={() => {
-              undoReject();
+              handleRsvp("undo-reject", event.data.id);
             }}
           >
             Undo Reject
@@ -90,7 +97,7 @@ const EventsListItem: React.FC<{ event: Event }> = ({ event }) => {
             <button
               className="list-event-button accept"
               onClick={() => {
-                accept();
+                handleRsvp("accept", event.data.id);
               }}
             >
               Accept
@@ -98,7 +105,7 @@ const EventsListItem: React.FC<{ event: Event }> = ({ event }) => {
             <button
               className="list-event-button reject"
               onClick={() => {
-                reject();
+                handleRsvp("reject", event.data.id);
               }}
             >
               Reject

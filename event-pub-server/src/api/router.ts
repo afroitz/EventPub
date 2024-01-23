@@ -12,6 +12,9 @@ router.post('/create', isLoggedIn, eventController.createEvent);
 /* Client facing list events endpoint: Used for displaying events in UI. */
 router.get('/list', isLoggedIn, eventController.listEvents);
 
+/* Client facing rsvp endpoint: Used for rsvp'ing to an event. */
+router.post('/rsvp', isLoggedIn, eventController.rsvp);
+
 router.post('/receive', eventController.receiveEvent);
 router.get('/events/:id', eventController.get);
 
