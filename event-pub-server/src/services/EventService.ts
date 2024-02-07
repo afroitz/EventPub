@@ -37,6 +37,73 @@ class EventService {
   }
 
   /**
+   * Returns an ActivityPub representation of an event wrapped in an Accept activity
+   */
+  public getApAcceptEvent(eventId: string, actorId: string) {
+    return {
+      "@context": "https://www.w3.org/ns/activitystreams",
+      type: "Accept",
+      id: eventId,
+      actor: actorId,
+      object: eventId,
+    };
+  }
+
+  /**
+   * Returns an ActivityPub representation of an event wrapped in a Reject activity
+   */
+  public getApRejectEvent(eventId: string, actorId: string) {
+    return {
+      "@context": "https://www.w3.org/ns/activitystreams",
+      type: "Reject",
+      id: eventId,
+      actor: actorId,
+      object: eventId,
+    };
+  }
+
+  /**
+   * Returns an ActivityPub representation of an event wrapped in an Accept and an Undo activity
+   */
+  public getApUndoAcceptEvent(eventId: string, actorId: string) {
+    return {
+      "@context": "https://www.w3.org/ns/activitystreams",
+      type: "Undo",
+      id: eventId,
+      actor: actorId,
+      object: this.getApAcceptEvent(eventId, actorId),
+    };
+  }
+
+  /**
+   * Returns an ActivityPub representation of an event wrapped in a Reject and an Undo activity
+   */
+  public getApUndoRejectEvent(eventId: string, actorId: string) {
+    return {
+      "@context": "https://www.w3.org/ns/activitystreams",
+      type: "Undo",
+      id: eventId,
+      actor: actorId,
+      object: this.getApRejectEvent(eventId, actorId),
+    };
+  }
+
+  /**
+   * Returns an ActivityPub representation of an event wrapped in an Update activity
+   */
+  public getApUpdateEvent(event: DbEvent) {
+    const apEvent = this.getApEvent(event);
+
+    return {
+      "@context": "https://www.w3.org/ns/activitystreams",
+      type: "Update",
+      id: event.federationId,
+      actor: event.attributedTo,
+      object: apEvent,
+    };
+  }
+
+  /**
    * Returns the event's federation ID
    * @param eventId
    */

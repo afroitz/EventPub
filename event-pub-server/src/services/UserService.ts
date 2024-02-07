@@ -21,6 +21,14 @@ class UserService {
   public getUserFederationId(username: string){
     return `${process.env.APP_URL}/users/${username}`
   }
+
+  /**
+   * Returns the user's server domain from the federation id
+   * @param federationId
+   */
+  public getUserServerUrl(federationId: string){
+    return federationId.split("/").slice(0, 3).join("/");
+  }
 }
 
 export default UserService;
