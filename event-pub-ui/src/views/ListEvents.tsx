@@ -8,6 +8,9 @@ type Event = {
     startTime: string;
     endTime: string;
     location: string;
+    attributedTo: string;
+    accepted: string[];
+    rejected: string[];
   };
   isOwner: boolean;
   rsvpStatus: "accepted" | "rejected" | "none";
@@ -39,7 +42,13 @@ const EventsListItem: React.FC<{ event: Event }> = ({ event }) => {
 
   return (
     <li className="list-event">
-      <h3>{event.data.name}</h3>
+      <div className="list-event-header">
+        <h3>{event.data.name}</h3>
+        <p>
+          <b>Author: </b>
+          {event.data.attributedTo}
+        </p>
+      </div>
       {event.rsvpStatus !== "none" && (
         <p className={`list-event-rsvp-status ${event.rsvpStatus}`}>
           You have {event.rsvpStatus} this event
@@ -59,6 +68,26 @@ const EventsListItem: React.FC<{ event: Event }> = ({ event }) => {
         </div>
         <div className="list-event-right">
           <p>{event.data.content}</p>
+          <div>
+            <p>
+              <b>Accepted:</b>
+            </p>
+            <ul>
+              {event.data.accepted.map((name: string) => (
+                <li key={name}>{name}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p>
+              <b>Rejected:</b>
+            </p>
+            <ul>
+              {event.data.rejected.map((name: string) => (
+                <li key={name}>{name}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
       <div className="list-event-buttons">

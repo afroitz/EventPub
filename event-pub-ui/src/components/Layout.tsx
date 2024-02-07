@@ -31,6 +31,9 @@ const Layout: React.FC = () => {
                   <a href="/list">List</a>
                 </li>
                 <li>
+                  <a href="/feed">Feed</a>
+                </li>
+                <li>
                   <button type="button" onClick={handleLogout}>
                     Logout
                   </button>

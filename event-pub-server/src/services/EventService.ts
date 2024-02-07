@@ -14,8 +14,8 @@ class EventService {
       startTime: event.startTime,
       endTime: event.endTime,
       location: event.location,
-      accepted: "IMPLEMENT",
-      rejected: "IMPLEMENT",
+      accepted: event.accepted,
+      rejected: event.rejected,
       published: event.published,
       updated: event.updated,
     };
@@ -45,7 +45,11 @@ class EventService {
       type: "Accept",
       id: eventId,
       actor: actorId,
-      object: eventId,
+      object: {
+        id: eventId,
+        type: "Event",
+        attributedTo: actorId,
+      }
     };
   }
 
@@ -58,7 +62,11 @@ class EventService {
       type: "Reject",
       id: eventId,
       actor: actorId,
-      object: eventId,
+      object: {
+        id: eventId,
+        type: "Event",
+        attributedTo: actorId,
+      }
     };
   }
 

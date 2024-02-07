@@ -13,6 +13,7 @@ import ListEvents from "./views/ListEvents";
 import Login from "./views/Login";
 import Register from "./views/Register";
 import { AuthProvider } from "./context/AuthContext";
+import FeedEvents from "./views/FeedEvents";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
         path: "list",
         element: <ListEvents />, // Render the same component for /receive
       },
+      {
+        path: "feed",
+        element: <FeedEvents />,
+      }
     ],
   },
 ]);

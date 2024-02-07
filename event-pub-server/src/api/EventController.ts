@@ -78,6 +78,7 @@ class EventController {
           location: location,
           accepted: [],
           rejected: [],
+          isInternal: true,
         })
       )[0];
 
@@ -120,9 +121,11 @@ class EventController {
 
         // add user to accepted or rejected
         if (action === "accept") {
-          event.accepted = [...event.accepted, currUserId];
+          event.accepted = [...new Set([...event.accepted, currUserId])];
+          event.rejected = event.rejected.filter((u) => u !== currUserId);
         } else if (action === "reject") {
-          event.rejected = [...event.rejected, currUserId];
+          event.rejected = [...new Set([...event.rejected, currUserId])];
+          event.accepted = event.accepted.filter((u) => u !== currUserId);
         } else if (action === "undo-accept") {
           event.accepted = event.accepted.filter((u) => u !== currUserId);
         } else if (action === "undo-reject") {

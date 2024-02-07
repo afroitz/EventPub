@@ -20,6 +20,9 @@ class FederationController {
 
       const type = req.body.type;
 
+      console.log('received in inbox'.toUpperCase());
+      console.log(JSON.stringify(req.body, null, 2));
+
       if (type == "Create") {
         console.log("received create event");
         await this.service.handleCreate(req.body);
@@ -45,6 +48,9 @@ class FederationController {
           await this.service.handleUndoReject(req.body);
         }
       }
+
+      res.status(200).send("Message processed");
+
     } catch (e) {
       console.log("Error in inbox endpoint");
       console.log(e);

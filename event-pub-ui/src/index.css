@@ -44,6 +44,10 @@ nav a:hover {
   margin-bottom: 1rem;
 }
 
+.list-event-header p {
+  margin: 0;
+}
+
 .list-event-left {
   padding-right: 1rem;
   border-right: 2px solid #000;

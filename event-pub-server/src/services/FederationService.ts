@@ -1,6 +1,7 @@
 import { db } from "../db/db";
 import { NewEvent, dbActivityQueue, dbEvents } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
 import EventService from "./EventService";
 
 class FederationService {
@@ -21,9 +22,9 @@ class FederationService {
 
       // parse event data and store in db
       const newEvent: NewEvent = {
-        id: activity.object.id,
-        isInternal: false,
+        id: uuidv4(),
         federationId: activity.object.id,
+        isInternal: false,
         attributedTo: activity.actor,
         name: activity.object.name,
         content: activity.object.content,
