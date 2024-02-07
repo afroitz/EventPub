@@ -11,6 +11,8 @@ router.post('/create', isLoggedIn, eventController.create);
 router.post('/rsvp', isLoggedIn, eventController.rsvp);
 router.get('/list', isLoggedIn, eventController.list);
 router.get('/events/:id', eventController.get);
+router.get('/events/:id/accepted', eventController.getAccepted);
+router.get('/events/:id/rejected', eventController.getRejected);
 
 const userController = new UserController();
 router.post('/register', userController.register);

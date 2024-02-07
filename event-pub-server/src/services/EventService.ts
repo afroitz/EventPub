@@ -14,8 +14,8 @@ class EventService {
       startTime: event.startTime,
       endTime: event.endTime,
       location: event.location,
-      accepted: event.accepted,
-      rejected: event.rejected,
+      accepted: this.getApEventAccepted(event),
+      rejected: this.getApEventRejected(event),
       published: event.published,
       updated: event.updated,
     };
@@ -117,6 +117,44 @@ class EventService {
    */
   public getEventFederationId(eventId: string){
     return `${process.env.APP_URL}/events/${eventId}`
+  }
+
+  /**
+   * Returns the accepted collection of the event
+   * @param event
+   */
+  public getApEventAccepted(event: DbEvent){
+    return {
+      id: `${event.federationId}/accepted`,
+      summary: "Attendees",
+      type: "Collection",
+      totalItems: event.accepted.length,
+      items: event.accepted.map((u) => {
+        return {
+          type: "Person",
+          id: u,
+        }
+      }),
+    }
+  }
+
+  /**
+   * Returns the rejected collection of the event
+   * @param event
+   */
+  public getApEventRejected(event: DbEvent){
+    return {
+      id: `${event.federationId}/rejected`,
+      summary: "Declined",
+      type: "Collection",
+      totalItems: event.rejected.length,
+      items: event.rejected.map((u) => {
+        return {
+          type: "Person",
+          id: u,
+        }
+      }),
+    }
   }
 }
 

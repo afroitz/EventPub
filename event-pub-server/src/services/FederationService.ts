@@ -20,6 +20,9 @@ class FederationService {
         throw new Error("Wrong activity type");
       }
 
+      const accepted = activity.object.accepted.items.map((i: any) => i.id)
+      const rejected = activity.object.rejected.items.map((i: any) => i.id)
+
       // parse event data and store in db
       const newEvent: NewEvent = {
         id: uuidv4(),
@@ -31,8 +34,8 @@ class FederationService {
         startTime: activity.object.startTime,
         endTime: activity.object.endTime,
         location: activity.object.location,
-        accepted: activity.object.accepted,
-        rejected: activity.object.rejected,
+        accepted: accepted,
+        rejected: rejected,
       };
 
       await db.insert(dbEvents).values(newEvent)
@@ -68,14 +71,17 @@ class FederationService {
         throw new Error("Actor not authorized to update event");
       }
 
+      const accepted = activity.object.accepted.items.map((i: any) => i.id)
+      const rejected = activity.object.rejected.items.map((i: any) => i.id)
+
       await db.update(dbEvents).set({
         name: activity.object.name,
         content: activity.object.content,
         startTime: activity.object.startTime,
         endTime: activity.object.endTime,
         location: activity.object.location,
-        accepted: activity.object.accepted,
-        rejected: activity.object.rejected,
+        accepted: accepted,
+        rejected: rejected,
         updated: new Date()
       }).where(eq(dbEvents.federationId, activity.object.id));
 

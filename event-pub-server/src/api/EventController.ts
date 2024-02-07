@@ -205,6 +205,40 @@ class EventController {
       res.status(500).send("Error getting user");
     }
   };
+
+  public getAccepted = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const event = await this.repository.getEvent(id);
+
+      if (!event) {
+        return res.status(404).send("Event not found");
+      }
+
+      const accepted = this.eventService.getApEventAccepted(event)
+      return res.status(200).send(accepted);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Error getting accepted users");
+    }
+  }
+
+  public getRejected = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const event = await this.repository.getEvent(id);
+
+      if (!event) {
+        return res.status(404).send("Event not found");
+      }
+
+      const rejected = this.eventService.getApEventRejected(event)
+      return res.status(200).send(rejected);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Error getting rejected users");
+    }
+  }
 }
 
 export default EventController;
