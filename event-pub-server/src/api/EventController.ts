@@ -6,6 +6,7 @@ import UserService from "../services/UserService";
 import { db } from "../db/db";
 import { dbActivityQueue, dbEvents } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { Feed } from "feed";
 
 class EventController {
   repository: EventRepository;
@@ -237,6 +238,42 @@ class EventController {
     } catch (error) {
       console.log(error);
       res.status(500).send("Error getting rejected users");
+    }
+  }
+
+  getFeed = async (req: Request, res: Response) => {
+    try {
+      // create feed
+      const feed = new Feed({
+        title: "Event Feed",
+        description:
+          "This is an amazing feed informing you about events.",
+        id: process.env.APP_URL + "/feed",
+        link: process.env.APP_URL + "/feed",
+        language: "en",
+        copyright: "2024"
+      });
+
+      // get events from db
+      const events = await this.repository.list();
+
+      events.forEach((event) => {
+        feed.addItem({
+          title: event.name?? '',
+          id: "urn:uuid:" + event.id,
+          link: event.federationId,
+          author: [{ name: event.attributedTo }],
+          date: event.updated?? new Date(),
+          description: event.content?? '',
+          published: event.published?? new Date(),
+        });
+
+      });
+      res.set("Content-Type", "application/atom+xml");
+      res.send(feed.atom1());
+    } catch (e) {
+      console.log(e);
+      res.status(400).send("error requesting feed");
     }
   }
 }
