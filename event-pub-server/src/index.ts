@@ -5,6 +5,7 @@ import cors from 'cors';
 import session from 'express-session';
 import { pool } from './db/db';
 import connectPgSimple from 'connect-pg-simple';
+import { setupPublishJob } from './jobs/publishActivities';
 
 declare module 'express-session' {
   export interface SessionData {
@@ -42,6 +43,9 @@ app.use(session({
     sameSite: false
   },
 }));
+
+// Setup job for publishing activities
+setupPublishJob();
 
 // Router should be last middleware
 app.use('/', router);

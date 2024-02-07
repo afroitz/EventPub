@@ -4,15 +4,16 @@ import { eq } from "drizzle-orm";
 import { dbUsers } from "../db/schema";
 import bcrypt from "bcrypt";
 import UserRepository from "../db/UserRepository";
-
-type NewUser = typeof dbUsers.$inferInsert;
+import UserService from "../services/UserService";
 
 class UserController {
 
   repository: UserRepository
+  userService: UserService
 
   constructor() {
     this.repository = new UserRepository();
+    this.userService = new UserService();
   }
 
   public register = async (req: Request, res: Response) => {
@@ -62,6 +63,52 @@ class UserController {
     } catch (error) {
       console.log(error);
       res.status(500).send("Error logging in");
+    }
+  }
+
+  public logout = async (req: Request, res: Response) => {
+    try {
+      req.session.destroy((error) => {
+        if (error) {
+          throw error;
+        }
+      });
+      res.clearCookie('sid');
+      res.status(200).send({message: 'Logged out'});
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({message: "Error logging out"});
+    }
+  }
+   
+
+  // TODO: Make this activitypub compliant
+  public get = async (req: Request, res: Response) => {
+    try {
+      const { username } = req.params;
+
+      const user = await db.query.dbUsers.findFirst({
+        where: eq(dbUsers.username, username)
+      });
+
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+
+      const apUser = this.userService.getApUser(user);
+
+      return res.status(200).send(apUser);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Error getting user");
+    }
+  }
+
+  public checkSession = async (req: Request, res: Response) => {
+    if (req.session.user) {
+      return res.send({loggedIn: true})
+    } else {
+      return res.send({loggedIn: false})
     }
   }
 }

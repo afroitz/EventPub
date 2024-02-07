@@ -9,7 +9,10 @@
     "dev": "nodemon src/index.ts",
     "migration:generate": "drizzle-kit generate:pg --schema=./src/db/schema.ts",
     "migration:push": "ts-node src/db/migrate.ts",
-    "init-sessions-table": "ts-node scripts/init-sessions-table.ts"
+    "init-sessions-table": "ts-node scripts/init-sessions-table.ts",
+    "init-db": "ts-node scripts/init-db.ts",
+    "seed-db": "ts-node scripts/seed-db.ts",
+    "init-db-full": "npm run init-db && rm -rf ./drizzle && npm run migration:generate && npm run migration:push && npm run init-sessions-table && npm run seed-db"
   },
   "keywords": [],
   "author": "",
@@ -23,10 +26,12 @@
     "bcrypt": "^5.1.1",
     "connect-pg-simple": "^9.0.1",
     "cors": "^2.8.5",
+    "cron": "^3.1.6",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.1",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
+    "feed": "^4.2.2",
     "pg": "^8.11.3",
     "uuid": "^9.0.1"
   },

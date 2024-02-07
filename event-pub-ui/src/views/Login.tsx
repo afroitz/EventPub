@@ -1,34 +1,20 @@
-import React, { useState } from "react";
-import { redirect, useNavigate } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+  const { logIn } = useContext(AuthContext);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL + "/login", {
-        method: "POST",
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        console.log("Login successful");
-        return navigate("/list");
-      } else {
-        throw new Error("Login failed");
-      }
+      await logIn({ username, password });
+      return navigate("/list");
     } catch (error) {
       console.log("Login failed");
     }
@@ -36,9 +22,8 @@ const Login: React.FC = () => {
 
   return (
     <div>
-      <h1>Event Pub</h1>
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleLogin}>
         <div>
           <label htmlFor="title">Username</label>
           <input

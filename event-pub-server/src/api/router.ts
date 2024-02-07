@@ -2,17 +2,27 @@ import express from 'express';
 import EventController from './EventController';
 import UserController from './UserController';
 import { isLoggedIn } from '../middleware/auth';
+import FederationController from './FederationController';
 
 const router = express.Router();
-const eventController = new EventController();
 
-router.post('/create', eventController.createEvent);
-router.post('/receive', eventController.receiveEvent);
-router.get('/list', isLoggedIn, eventController.listEvents);
+const eventController = new EventController();
+router.post('/create', isLoggedIn, eventController.create);
+router.post('/rsvp', isLoggedIn, eventController.rsvp);
+router.get('/list', isLoggedIn, eventController.list);
+router.get('/feed', eventController.getFeed);
+router.get('/events/:id', eventController.get);
+router.get('/events/:id/accepted', eventController.getAccepted);
+router.get('/events/:id/rejected', eventController.getRejected);
 
 const userController = new UserController();
-
 router.post('/register', userController.register);
 router.post('/login', userController.login);
+router.post('/logout', isLoggedIn, userController.logout);
+router.get('/users/:username', userController.get);
+router.get('/check-session', userController.checkSession);
+
+const federationController = new FederationController();
+router.post('/inbox', federationController.inbox);
 
 export default router;
