@@ -95,3 +95,11 @@ nav a:hover {
 .list-event-rsvp-status.rejected {
   color: red;
 }
+
+.create-error {
+  color: red;
+}
+
+.create-success {
+  color: green;
+}

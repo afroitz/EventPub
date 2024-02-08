@@ -8,6 +8,9 @@ const CreateEvents: React.FC = () => {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
 
+  const [error, setError] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -40,8 +43,18 @@ const CreateEvents: React.FC = () => {
 
       if (response.ok) {
         console.log('Event created successfully');
+        setTitle('');
+        setSummary('');
+        setLocation('');
+        setStartTime('');
+        setEndTime('');
+        setError(false);
+        setMessage('Event created successfully');
       } else {
-        console.error('Failed to create event');
+        console.error('Error creating event');
+        setError(true);
+        setMessage('Error creating event');
+
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -51,6 +64,7 @@ const CreateEvents: React.FC = () => {
   return (
     <>
         <h2>Create Events</h2>
+        {message !== '' && <p className={error ? 'create-error' : 'create-success'}>{message}</p>}
         <form onSubmit={handleSubmit}>
           <div>
             <label htmlFor="title">Title</label>
