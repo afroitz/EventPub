@@ -176,6 +176,7 @@ const ListEvents: React.FC = () => {
           <EventsListItem key={event.data.id} event={event} />
         ))}
       </ul>
+      {events.length === 0 && <p>No events found</p>}
     </>
   );
 };
